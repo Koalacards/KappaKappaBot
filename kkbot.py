@@ -88,8 +88,13 @@ William H. Coppedge, Asher Hendrickson, Dick Hurst, and Iron Hawthorne Nelson"]
 
 HEADQUARTERS = ['The Headquarters of Kappa Kappa Psi', 'Stillwater Station in Stillwater, Oklahoma']
 
+LINKS = ['Kappa Links!', "Website: https://www.kkpsi.org/ \n \
+    Facebook: https://www.facebook.com/KappaKappaPsi/ \n \
+    Twitter: https://twitter.com/kappakappapsi?lang=en \n \
+    Instagram: https://www.instagram.com/kappa.kappa.psi/?hl=en"]
 
-LIST = [MISSION_STATEMENT, VISION_STATEMENT, PREAMBLE, CREED, FIRST_PURPOSE, SECOND_PURPOSE, THIRD_PURPOSE, FOURTH_PURPOSE, FIFTH_PURPOSE, MUSICIANSHIP, SERVICE, LEADERSHIP, BROTHERHOOD, MOTTO, FLOWER, GUIDING_SPIRIT, FOUNDERS, HEADQUARTERS]
+
+LIST = [MISSION_STATEMENT, VISION_STATEMENT, PREAMBLE, CREED, FIRST_PURPOSE, SECOND_PURPOSE, THIRD_PURPOSE, FOURTH_PURPOSE, FIFTH_PURPOSE, MUSICIANSHIP, SERVICE, LEADERSHIP, BROTHERHOOD, MOTTO, FLOWER, GUIDING_SPIRIT, FOUNDERS, HEADQUARTERS, LINKS]
 
 CONTINUOUS_FACTS = 0
 
@@ -175,6 +180,10 @@ async def founders(ctx):
 @client.command()
 async def headquarters(ctx):
     await _sendEmbed(ctx, HEADQUARTERS)
+
+@client.command()
+async def links(ctx):
+    await _sendEmbed(ctx, LINKS)
 
 @client.command()
 async def shrine(ctx):

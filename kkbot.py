@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 import random
+from confidential import RUN_ID
+from kappadbfunc import set_info, get_info
 
 MISSION_STATEMENT = ['Mission Statement', "Kappa Kappa Psi is a co-educational fraternal organization that advances college \
 and university bands for the benefit of its members and society through dedicated \
@@ -96,142 +98,166 @@ LINKS = ['Kappa Links!', "Website: https://www.kkpsi.org/ \n \
 
 LIST = [MISSION_STATEMENT, VISION_STATEMENT, PREAMBLE, CREED, FIRST_PURPOSE, SECOND_PURPOSE, THIRD_PURPOSE, FOURTH_PURPOSE, FIFTH_PURPOSE, MUSICIANSHIP, SERVICE, LEADERSHIP, BROTHERHOOD, MOTTO, FLOWER, GUIDING_SPIRIT, FOUNDERS, HEADQUARTERS, LINKS]
 
-CONTINUOUS_FACTS = 0
+class KappaKappaBot(commands.Bot):
+    def __init__(self, *, command_prefix: str, intents: discord.Intents) -> None:
+        super().__init__(command_prefix=command_prefix, intents=intents)
+    
+    async def on_ready(self):
+        print("ready")
+        await self.tree.sync()
 
-CONTINUOUS_CHANNEL = None
+    async def on_message(self, message):
+        guild_id = message.guild.id
+        info_list = get_info(guild_id)
+        if info_list is not None:
+            num_messages, channel_id, counter = info_list[0], info_list[1], info_list[2]
+            if num_messages > 0:
+                if counter == num_messages:
+                    set_info(guild_id, num_messages, channel_id, 0)
+                    await _sendEmbedChannel(channel_id, _give_random_fact())
+                    counter = 0
+                counter = counter + 1
+                set_info(guild_id, num_messages, channel_id, counter)
+        await client.process_commands(message)
 
-COUNTER = 0
+intents = discord.Intents.default()
+intents.messages = True
+client = KappaKappaBot(command_prefix='!', intents=intents)
 
-client = commands.Bot(command_prefix='!')
+@client.tree.command()
+async def mission(interaction:discord.Interaction):
+    """What is the kappa mission statement?"""
+    await _sendEmbed(interaction, MISSION_STATEMENT)
+
+@client.tree.command()
+async def vision(interaction:discord.Interaction):
+    """What is the kappa vision statement?"""
+    await _sendEmbed(interaction, VISION_STATEMENT)
+
+@client.tree.command()
+async def preamble(interaction:discord.Interaction):
+    """What is the kappa preamble?"""
+    await _sendEmbed(interaction, PREAMBLE)
+
+@client.tree.command()
+async def creed(interaction:discord.Interaction):
+    """What is the kappa creed?"""
+    await _sendEmbed(interaction, CREED)
+
+@client.tree.command()
+async def musicianship(interaction:discord.Interaction):
+    """Defines musicianship"""
+    await _sendEmbed(interaction, MUSICIANSHIP)
+
+@client.tree.command()
+async def leadership(interaction:discord.Interaction):
+    """Defines leadership"""
+    await _sendEmbed(interaction, LEADERSHIP)
+
+@client.tree.command()
+async def service(interaction:discord.Interaction):
+    """Defines service"""
+    await _sendEmbed(interaction, SERVICE)
+
+@client.tree.command()
+async def brotherhood(interaction:discord.Interaction):
+    """Defines brotherhood"""
+    await _sendEmbed(interaction, BROTHERHOOD)
+
+@client.tree.command()
+async def flag(interaction:discord.Interaction):
+    """What is the kappa flag?"""
+    await interaction.response.send_message('https://cdn.discordapp.com/attachments/777521776213098499/777525150522408980/unknown.png')
+
+@client.tree.command()
+async def motto(interaction:discord.Interaction):
+    """What is the national motto?"""
+    await _sendEmbed(interaction, MOTTO)
+
+@client.tree.command()
+async def flower(interaction:discord.Interaction):
+    """Shows the national flower"""
+    await _sendEmbed(interaction, FLOWER)
+
+@client.tree.command()
+async def firstpurpose(interaction:discord.Interaction):
+    """What is the first purpose?"""
+    await _sendEmbed(interaction, FIRST_PURPOSE)
+
+@client.tree.command()
+async def secondpurpose(interaction:discord.Interaction):
+    """What is the second purpose?"""
+    await _sendEmbed(interaction, SECOND_PURPOSE)
+
+@client.tree.command()
+async def thirdpurpose(interaction:discord.Interaction):
+    """What is the third purpose?"""
+    await _sendEmbed(interaction, THIRD_PURPOSE)
+
+@client.tree.command()
+async def fourthpurpose(interaction:discord.Interaction):
+    """What is the fourth purpose?"""
+    await _sendEmbed(interaction, FOURTH_PURPOSE)
+
+@client.tree.command()
+async def fifthpurpose(interaction:discord.Interaction):
+    """What is the fifth purpose?"""
+    await _sendEmbed(interaction, FIFTH_PURPOSE)
+
+@client.tree.command()
+async def guidingspirit(interaction:discord.Interaction):
+    """Who is our guiding spirit? (dont get this wrong)"""
+    await _sendEmbed(interaction, GUIDING_SPIRIT)
+
+@client.tree.command()
+async def founders(interaction:discord.Interaction):
+    """Who are the founders of kappa?"""
+    await _sendEmbed(interaction, FOUNDERS)
+
+@client.tree.command()
+async def headquarters(interaction:discord.Interaction):
+    """Wheres the headquarters of kappa?"""
+    await _sendEmbed(interaction, HEADQUARTERS)
+
+@client.tree.command()
+async def links(interaction:discord.Interaction):
+    """Shows the links to the website/social media"""
+    await _sendEmbed(interaction, LINKS)
+
+@client.tree.command()
+async def shrine(interaction:discord.Interaction):
+    """Shows the shrine"""
+    await interaction.response.send_message('https://cdn.discordapp.com/attachments/777521776213098499/777528990353195028/unknown.png')
 
 
-@client.command()
-async def mission(ctx):
-    await _sendEmbed(ctx, MISSION_STATEMENT)
 
-@client.command()
-async def vision(ctx):
-    await _sendEmbed(ctx, VISION_STATEMENT)
-
-@client.command()
-async def preamble(ctx):
-    await _sendEmbed(ctx, PREAMBLE)
-
-@client.command()
-async def creed(ctx):
-    await _sendEmbed(ctx, CREED)
-
-@client.command()
-async def musicianship(ctx):
-    await _sendEmbed(ctx, MUSICIANSHIP)
-
-@client.command()
-async def leadership(ctx):
-    await _sendEmbed(ctx, LEADERSHIP)
-
-@client.command()
-async def service(ctx):
-    await _sendEmbed(ctx, SERVICE)
-
-@client.command()
-async def brotherhood(ctx):
-    await _sendEmbed(ctx, BROTHERHOOD)
-
-@client.command()
-async def flag(ctx):
-    await ctx.send('https://cdn.discordapp.com/attachments/777521776213098499/777525150522408980/unknown.png')
-
-@client.command()
-async def motto(ctx):
-    await _sendEmbed(ctx, MOTTO)
-
-@client.command()
-async def flower(ctx):
-    await _sendEmbed(ctx, FLOWER)
-
-@client.command()
-async def firstpurpose(ctx):
-    await _sendEmbed(ctx, FIRST_PURPOSE)
-
-@client.command()
-async def secondpurpose(ctx):
-    await _sendEmbed(ctx, SECOND_PURPOSE)
-
-@client.command()
-async def thirdpurpose(ctx):
-    await _sendEmbed(ctx, THIRD_PURPOSE)
-
-@client.command()
-async def fourthpurpose(ctx):
-    await _sendEmbed(ctx, FOURTH_PURPOSE)
-
-@client.command()
-async def fifthpurpose(ctx):
-    await _sendEmbed(ctx, FIFTH_PURPOSE)
-
-@client.command()
-async def guidingspirit(ctx):
-    await _sendEmbed(ctx, GUIDING_SPIRIT)
-
-@client.command()
-async def founders(ctx):
-    await _sendEmbed(ctx, FOUNDERS)
-
-@client.command()
-async def headquarters(ctx):
-    await _sendEmbed(ctx, HEADQUARTERS)
-
-@client.command()
-async def links(ctx):
-    await _sendEmbed(ctx, LINKS)
-
-@client.command()
-async def shrine(ctx):
-    await ctx.send('https://cdn.discordapp.com/attachments/777521776213098499/777528990353195028/unknown.png')
-
-
-
-@client.command()
-async def random_fact(ctx):
+@client.tree.command()
+async def random_fact(interaction:discord.Interaction):
+    """Gives a random kappa fact!"""
     fact = _give_random_fact()
-    await _sendEmbed(ctx, fact)
+    await _sendEmbed(interaction, fact)
 
 def _give_random_fact():
     return LIST[random.randint(0, len(LIST) - 1)]
 
 
-@client.command()
-async def continuous_facts(ctx, num_messages:int, channel:discord.TextChannel):
-    global CONTINUOUS_CHANNEL
-    global CONTINUOUS_FACTS
-    CONTINUOUS_FACTS = num_messages
-    CONTINUOUS_CHANNEL = channel
-    await ctx.send(f'Got it, the channel {channel.name} will now recieve random facts every {num_messages} messages.')
+@client.tree.command()
+async def continuous_facts(interaction:discord.Interaction, num_messages:int, channel:discord.TextChannel):
+    """Send continuous facts to a channel (if you want this turned off, set num_messages to 0)"""
+    set_info(interaction.guild_id, num_messages, channel.id, 0)
+    await interaction.response.send_message(f'Got it, the channel {channel.name} will now recieve random facts every {num_messages} messages.')
 
 
-
-@client.event
-async def on_message(message):
-    if CONTINUOUS_FACTS > 0 and CONTINUOUS_CHANNEL != None:
-        global COUNTER
-        if COUNTER == CONTINUOUS_FACTS:
-            COUNTER = 0
-            await _sendEmbedChannel(CONTINUOUS_CHANNEL, _give_random_fact())
-            COUNTER = 0
-        COUNTER = COUNTER + 1
-
-    await client.process_commands(message)
-
-
-async def _sendEmbed(ctx, tuple):
+async def _sendEmbed(interaction:discord.Interaction, tuple):
     embed = discord.Embed(
         title=tuple[0],
         description=tuple[1],
         colour=discord.Colour.from_rgb(0, 22, 137)
     )
-    await ctx.send(embed=embed)
+    await interaction.response.send_message(embed=embed)
 
-async def _sendEmbedChannel(channel, tuple):
+async def _sendEmbedChannel(channel_id, tuple):
+    channel = client.get_channel(channel_id)
     embed = discord.Embed(
         title=tuple[0],
         description=tuple[1],
@@ -240,4 +266,4 @@ async def _sendEmbedChannel(channel, tuple):
     await channel.send(embed=embed)
 
 
-client.run('Nzc3NTIwMTU1NTQyMjkwNDMz.X7EoEg.lMP6ZPwXrxhxcNqtZoynIn9olR4')
+client.run(RUN_ID)
